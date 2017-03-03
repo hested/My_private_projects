@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Tingle</string>
+    <string name="title_activity_list">List of things</string>
+    <string name="last_thing">Last thing</string>
+    <string name="what_thing">What thing</string>
+    <string name="where_thing">Where</string>
+    <string name="add_new_thing_button">Add new thing</string>
+    <string name="find_thing_button">Find thing</string>
+    <string name="cant_find_the_thing">Can\'t find the thing</string>
+    <string name="is_here">&#160;is here:&#160;</string> <!-- &#160; is a code that inserts a blank space -->
+    <string name="list_all_things_button">List all things</string>
+    <string name="version_text">Version:&#160;</string>
+    <string name="delete_button">Delete</string>
+</resources>
