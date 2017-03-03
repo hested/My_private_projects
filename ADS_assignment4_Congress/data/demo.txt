@@ -1,0 +1,50 @@
+Wyoming 386
+Alaska 386
+Arizona 386
+Arkansas 386
+California 386
+Colorado 386
+Connecticut 386
+Delaware 386
+Florida 386
+Georgia 386
+Hawaii 386
+Idaho 386
+Illinois 386
+Indiana 386
+Iowa 386
+Kansas 386
+Kentucky 386
+Louisiana 386
+Maine 386
+Maryland 386
+Massachusetts 386
+Michigan 386
+Minnesota 386
+Mississippi 386
+Missouri 386
+Montana 386
+Nebraska 386
+Nevada 386
+New Hampshire 386
+New Jersey 386
+New Mexico 386
+New York 386
+North Carolina 386
+North Dakota 386
+Ohio 386
+Oklahoma 386
+Oregon 386
+Pennsylvania 386
+Rhode Island 386
+South Carolina 386
+South Dakota 386
+Tennessee 386
+Texas 386
+Utah 386
+Vermont 386
+Virginia 386
+Washington 386
+West Virginia 386
+Wisconsin 386
+Alabama 386
