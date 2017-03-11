@@ -17,6 +17,11 @@ public class ShoppingItem {
         mQuantity = quantity;
     }
 
+    @Override
+    public String toString() {
+        return mItemName + " (" + mQuantity + ")";
+    }
+
     public String getItemName() {
         return mItemName;
     }

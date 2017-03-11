@@ -5,3 +5,22 @@
     <string name="crime_title_label">Title</string>
     <string name="crime_solved_label">Solved</string>
 </resources>
+
+<!--
+Change Log
+
+- - - - - -
+Version x.x
+
+
+
+- - - - - -
+Version 2.0
+Each crime fragment in the list now opens a detailed crime activity.
+The list is updated when a crime's details are changed and vice versa.
+
+- - - - - -
+Version 1.0
+No change log from this point.
+
+-->
