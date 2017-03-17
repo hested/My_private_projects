@@ -4,20 +4,40 @@
     <string name="crime_details_label">Details</string>
     <string name="crime_title_label">Title</string>
     <string name="crime_solved_label">Solved</string>
+    <string name="date_picker_title">Date of crime:</string>
+    <string name="time_picker_title">Time of crime:</string>
+    <string name="new_crime">New Crime</string>
+    <string name="show_subtitle">Show Subtitle</string>
+    <string name="hide_subtitle">Hide Subtitle</string>
+    <string name="subtitle_format">%1$s crimes</string>
 </resources>
+
+
 
 <!--
 Change Log
 
 - - - - - -
 Version x.x
+date xx-xx-2017
 
 
 
 - - - - - -
+Version 2.1
+date 17-03-2017
+Added a Date Picker and a Time Picker that lets the user chose a time
+and a date for the crime.
+Added green colorAccent.
+Added 'add crime' icon in the toolbar.
+
+
+- - - - - -
 Version 2.0
+date 10-03-2017
 Each crime fragment in the list now opens a detailed crime activity.
 The list is updated when a crime's details are changed and vice versa.
+Added a View pager to swipe through all the crimes in the list.
 
 - - - - - -
 Version 1.0
