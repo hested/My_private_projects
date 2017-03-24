@@ -13,19 +13,20 @@ import java.util.List;
  * Author:   Johnni Hested
  */
 
-class ThingsDB {
-    private static ThingsDB sThingsDB;
+class OldThingsDB {
+    private static OldThingsDB sOldThingsDB;
+
 
     // Fake database
     private List<Thing> mThingsDB;
 
-    private ThingsDB() {}
+    private OldThingsDB() {}
 
-    static ThingsDB get(Context context) {
-        if (sThingsDB == null) {
-            sThingsDB = new ThingsDB(context);
+    static OldThingsDB get(Context context) {
+        if (sOldThingsDB == null) {
+            sOldThingsDB = new OldThingsDB(context);
         }
-        return sThingsDB;
+        return sOldThingsDB;
     }
 
     List<Thing> getThingsDB() {
@@ -49,7 +50,7 @@ class ThingsDB {
     }
 
     // Fill database for testing purposes
-    private ThingsDB(Context context) {
+    private OldThingsDB(Context context) {
         mThingsDB = new ArrayList<>();
         mThingsDB.add(new Thing("Android Phone", "Desk"));
         mThingsDB.add(new Thing("Big Nerd book", "Desk"));

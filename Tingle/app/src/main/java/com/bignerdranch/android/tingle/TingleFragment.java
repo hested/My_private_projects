@@ -15,7 +15,7 @@ import android.widget.Toast;
 
 /**
  * Project:  Tingle
- * Package:  ${PACKAGE_NAME}
+ * Package:  com.bignerdranch.android.tingle
  * Date:     21-02-2017
  * Time:     17:59
  * Author:   Johnni Hested
@@ -27,8 +27,8 @@ public class TingleFragment extends Fragment {
     private Button mAddNewThing, mFindThing, mListAllThings;
     private TextView mLastAdded, mNewWhat, mNewWhere;
 
-    // Database by using ThingsDB
-    private static ThingsDB sThingsDatabase;
+    // Using SQLite database
+    private static ThingsSQLiteDB sThingsSQLiteDB; //TODO Should this be private static?
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -39,7 +39,7 @@ public class TingleFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_tingle, container, false);
 
-        sThingsDatabase = ThingsDB.get(getActivity());
+        sThingsSQLiteDB = ThingsSQLiteDB.get(getActivity());
 
         // Accessing GUI element
         mLastAdded = (TextView) view.findViewById(R.id.last_text);
@@ -72,12 +72,12 @@ public class TingleFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if (mNewWhat.getText().length() > 0 && mNewWhere.getText().length() > 0 ) {
-                    sThingsDatabase.addThing(
-                        new Thing(
+
+                    sThingsSQLiteDB.addThing(
+                            new Thing(
                             mNewWhat.getText().toString(),
                             mNewWhere.getText().toString()
-                        )
-                    );
+                    ));
 
                     // Updating the ListFragment view
                     FragmentManager fm = getFragmentManager();
@@ -102,7 +102,7 @@ public class TingleFragment extends Fragment {
                     String showWhere = getString(R.string.cant_find_the_thing);
 
                     // Loops through the things in the database
-                    for (Thing thingInDatabase : sThingsDatabase.getThingsDB()) {
+                    for (Thing thingInDatabase : sThingsSQLiteDB.getThings()) {
                         if (searchWord.equals(thingInDatabase.getWhat())) {
                             showWhere = thingInDatabase.toString();
                         }
@@ -133,9 +133,9 @@ public class TingleFragment extends Fragment {
 
     // Method to update the UI view
     private void updateUI(){
-        int databaseSize = sThingsDatabase.size();
+        int databaseSize = sThingsSQLiteDB.getThings().size();
         if (databaseSize > 0) {
-            mLastAdded.setText(sThingsDatabase.get(databaseSize - 1).toString());
+            mLastAdded.setText(sThingsSQLiteDB.getThings().get(databaseSize - 1).toString());
         }
     }
 }

@@ -19,22 +19,22 @@ import android.widget.Toast;
  */
 
 public class CustomAdapter extends BaseAdapter implements ListAdapter {
-    private ThingsDB sThingsDatabase;
+    private ThingsSQLiteDB sThingsSQLiteDB;
     private Context mContext;
 
     public CustomAdapter(Context context) {
         this.mContext = context;
-        this.sThingsDatabase = ThingsDB.get(context);
+        this.sThingsSQLiteDB = ThingsSQLiteDB.get(context);
     }
 
     @Override
     public int getCount() {
-        return sThingsDatabase.size();
+        return sThingsSQLiteDB.getThings().size();
     }
 
     @Override
     public Object getItem(int pos) {
-        return sThingsDatabase.get(pos);
+        return sThingsSQLiteDB.getThings().get(pos);
     }
 
     @Override
@@ -52,13 +52,13 @@ public class CustomAdapter extends BaseAdapter implements ListAdapter {
 
         //Handle TextView and display string from mList
         TextView listItemText = (TextView) view.findViewById(R.id.list_item_string);
-        listItemText.setText(sThingsDatabase.get(position).toString());
+        listItemText.setText(sThingsSQLiteDB.getThings().get(position).toString());
         listItemText.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
 
                 // ListView clicked item value
-                Thing clickedThing = sThingsDatabase.get(position);
+                Thing clickedThing = sThingsSQLiteDB.getThings().get(position);
 
                 // Shows the item's position number
                 Toast.makeText(mContext,"Position " + position + ". Item : " + clickedThing.toString(), Toast.LENGTH_SHORT).show();
@@ -69,7 +69,7 @@ public class CustomAdapter extends BaseAdapter implements ListAdapter {
         deleteButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                sThingsDatabase.removeThing(position);
+                sThingsSQLiteDB.getThings().remove(position);
                 notifyDataSetChanged();
             }
         });

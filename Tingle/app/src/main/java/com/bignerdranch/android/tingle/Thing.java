@@ -1,5 +1,7 @@
 package com.bignerdranch.android.tingle;
 
+import java.util.UUID;
+
 /**
  * Project:  Tingle
  * Package:  com.bignerdranch.android.tingle
@@ -9,6 +11,7 @@ package com.bignerdranch.android.tingle;
  */
 
 public class Thing {
+    private final UUID mId;
     private String mWhat = null;
     private String mWhere = null;
 
@@ -23,6 +26,11 @@ public class Thing {
     public Thing(String what, String where) {
         mWhat = what;
         mWhere = where;
+        mId = UUID.randomUUID();
+    }
+
+    public Thing(UUID id) {
+        mId = id;
     }
 
     /**
@@ -60,5 +68,9 @@ public class Thing {
 
     public void setWhere(String where) {
         mWhere = where;
+    }
+
+    public UUID getId() {
+        return mId;
     }
 }

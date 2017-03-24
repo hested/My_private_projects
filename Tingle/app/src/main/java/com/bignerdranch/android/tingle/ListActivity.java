@@ -22,8 +22,9 @@ public class ListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
 
-        ThingsDB thingsDB = ThingsDB.get(this);
-        Log.d(TAG, "Database ID: " + System.identityHashCode(thingsDB));
+        ThingsSQLiteDB thingsSQLiteDB = ThingsSQLiteDB.get(this);
+
+        Log.d(TAG, "Database ID: " + System.identityHashCode(thingsSQLiteDB));
         mListView = (ListView) findViewById(R.id.list_things_view);
 
         // Instantiate custom adapter

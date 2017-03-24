@@ -13,6 +13,7 @@ import android.widget.TimePicker;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 /**
  * Project:  CriminalIntent
@@ -27,6 +28,7 @@ public class TimePickerFragment extends AppCompatDialogFragment {
     private static final String ARG_DATE = "date";
 
     private TimePicker mTimePicker;
+    private Calendar mCalendar;
     private Date mDate;
 
     public static TimePickerFragment newInstance(Date date) {
@@ -39,22 +41,15 @@ public class TimePickerFragment extends AppCompatDialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        mDate = (Date) getArguments().getSerializable(ARG_DATE);
+        Date date = (Date) getArguments().getSerializable(ARG_DATE);
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(mDate);
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(Calendar.MINUTE);
+        mCalendar = Calendar.getInstance();
+        mCalendar.setTime(date);
 
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_time, null);
 
         mTimePicker = (TimePicker) view.findViewById(R.id.dialog_time_time_picker);
         mTimePicker.setIs24HourView(true);
-        mTimePicker.setCurrentHour(hour);
-        mTimePicker.setCurrentMinute(minute);
 
         return new AlertDialog.Builder(getActivity())
                 .setView(view)
@@ -63,11 +58,12 @@ public class TimePickerFragment extends AppCompatDialogFragment {
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                int hour1 = mTimePicker.getCurrentHour();
-                                int minute1 = mTimePicker.getCurrentMinute();
-                                Date date = mDate;
-                                date.setHours(hour1);
-                                date.setMinutes(minute1);
+                                int year = mCalendar.get(Calendar.YEAR);
+                                int month = mCalendar.get(Calendar.MONTH);
+                                int day = mCalendar.get(Calendar.DAY_OF_MONTH);
+                                int hour = mTimePicker.getCurrentHour();
+                                int minute = mTimePicker.getCurrentMinute();
+                                Date date = new GregorianCalendar(year, month, day, hour, minute).getTime();
                                 sendResult(Activity.RESULT_OK, date);
                             }
                         })
