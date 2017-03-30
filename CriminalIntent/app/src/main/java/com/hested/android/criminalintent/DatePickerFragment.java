@@ -32,8 +32,8 @@ public class DatePickerFragment extends AppCompatDialogFragment {
 
     public static DatePickerFragment newInstance(Date date) {
         Bundle args = new Bundle();
-        args.putSerializable(ARG_DATE, date);
         DatePickerFragment fragment = new DatePickerFragment();
+        args.putSerializable(ARG_DATE, date);
         fragment.setArguments(args);
         return fragment;
     }

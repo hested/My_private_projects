@@ -29,7 +29,6 @@ public class TimePickerFragment extends AppCompatDialogFragment {
 
     private TimePicker mTimePicker;
     private Calendar mCalendar;
-    private Date mDate;
 
     public static TimePickerFragment newInstance(Date date) {
         Bundle args = new Bundle();

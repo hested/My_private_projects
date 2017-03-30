@@ -21,6 +21,7 @@
     <string name="crime_report_suspect">the suspect is %s.</string>
     <string name="crime_report_subject">Criminal Intent Crime Report</string>
     <string name="send_report">Send crime report via</string>
+    <string name="image_of_crime">Image of crime</string>
 
     <plurals name="subtitle_plural">
         <item quantity="one">%1$d crime</item>
@@ -40,19 +41,26 @@ date xx-xx-2017
 
 
 - - - - - -
+Version 2.4
+date 29-03-2017
+Two-pane layout added that works on tablets.
+
+- - - - - -
 Version 2.3
 date 24-03-2017
 Added a 'Suspect' to the crime.
 Added a button to select a suspect.
 Added a 'send crime report' button.
-Added camera button and a picture of the crime in the layouts.
-
-
+Added camera button and a picture picture frame.
+Added functionality to capture and show an image.
+Can click on the image to get a larger image shown.
+-(Bug)(When the image is shown, the device can not rotate its view)
+-(Bug)(When you take a photo in portrait mode, the image is not rotated correctly when it is shown/stored)
 
 - - - - - -
 Version 2.2
 date 18-03-2017
-Adding SQLite database.
+Added SQLite database.
 
 - - - - - -
 Version 2.1
