@@ -1,6 +1,7 @@
 ﻿# Group Matrix - Project 3
 
 Introduction to Database Design - Spring 2017
+
 Hand in date: 2017-05-17
 
 By Johnni Hested, Kristin Kaltenhäuser, Sarah Moore-Simonsen, Sophia Anatolieva Evtimova. 
