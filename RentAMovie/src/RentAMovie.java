@@ -7,49 +7,81 @@ public class RentAMovie {
     // Local MySQL database credentials
     private static final String DB_URL_IMDB = "jdbc:mysql://localhost:3306/imdb?autoReconnect=true&useSSL=false";
     private static final String DB_URL_CUSTOMERBASE = "jdbc:mysql://localhost:3306/customerbase?autoReconnect=true&useSSL=false";
-    private static final String USER = "root";
-    private static final String PASS = "xxxx";
+    private static final String USER = "root"; // Type your local MySQL user name
+    private static final String PASS = "xxxx"; // Type your local MySQL password
 
-    private static int userId;
-    private static String userName;
+    private static int mUserId;
+    private static String mUserName;
 
+
+    /**
+     * Signs in a user with a given user name and password.
+     *
+     * @param user      The user name the user typed in.
+     * @param password  The password the user typed in. Must be an integer.
+     * @return          True if the sign in succeeded. False otherwise.
+     */
     private boolean signInUser(String user, int password) {
+        Connection connection = null;
+        Statement statement = null;
+
         try {
-            Connection connection = DriverManager.getConnection(DB_URL_CUSTOMERBASE, USER, PASS);
-            Statement statement = connection.createStatement();
+            connection = DriverManager.getConnection(DB_URL_CUSTOMERBASE, USER, PASS);
+            connection.setAutoCommit(false);
+            connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE); // To prevent 'non-repeatable reads' and 'phantom reads'.
+
+            statement = connection.createStatement();
+
             ResultSet resultSet = statement.executeQuery("SELECT count(*), customerid FROM customer WHERE login = " + "'" + user + "'" + "AND password = " + "'" + password + "'");
-
             resultSet.first();
-
             int count = resultSet.getInt(1);
 
             if (count == 0) {
                 return false;
             } else {
-                userId = resultSet.getInt(2);
-                userName = user;
+                mUserId = resultSet.getInt(2);
+                mUserName = user;
             }
 
-            System.out.println("You are now signed in as " + userName);
+            System.out.println("You are now signed in as " + mUserName);
             return true;
 
         } catch (Exception e) {
             e.printStackTrace();
+
+        } finally {
+            closeConnections(connection, statement, null);
         }
 
         return false;
     }
 
-    private boolean createUser(String user, int password, String firstName, String lastName) {
+
+    /**
+     * Creates a new user in the database if it does not already exist.
+     * This method does not sign in the user afterwards.
+     *
+     * @param user      The user name the user typed in.
+     * @param password  The password name the user typed in. Must be an integer.
+     * @param firstName The first name the user typed in.
+     * @param lastName  The last name the user typed in.
+     * @return          True if it successfully created the user. False otherwise.
+     * @throws SQLException
+     */
+    private boolean createUser(String user, int password, String firstName, String lastName) throws SQLException {
         Connection connection = null;
+        Statement statement = null;
+        PreparedStatement preparedStatementInsert = null;
 
         try {
             connection = DriverManager.getConnection(DB_URL_CUSTOMERBASE, USER, PASS);
-            Statement statement = connection.createStatement();
+            connection.setAutoCommit(false);
+            connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE); // To prevent 'non-repeatable reads' and 'phantom reads'.
+
+            statement = connection.createStatement();
+
             ResultSet resultSet = statement.executeQuery("SELECT count(*), customerid FROM customer WHERE login = " + "'" + user + "'");
-
             resultSet.first();
-
             int count = resultSet.getInt(1);
 
             if (count > 0) {
@@ -57,40 +89,55 @@ public class RentAMovie {
                 return false;
             }
 
-            connection.setAutoCommit(false);
-            PreparedStatement preparedStatementInsert;
-
             String insertSQL = "INSERT INTO customer (login, password, firstname, lastname) VALUES (" + "'" + user + "', '" + password + "', '" + firstName + "', '" + lastName + "')";
 
             preparedStatementInsert = connection.prepareStatement(insertSQL);
             preparedStatementInsert.executeUpdate();
             connection.commit();
 
-            userName = user;
+            mUserName = user;
 
             System.out.println("Account successfully created.");
             return true;
 
         } catch (Exception e) {
 
-            try {
-                if (connection != null) {
-                    connection.rollback();
-                }
-            } catch (Exception ee) {
-                ee.printStackTrace();
+            if (connection != null) {
+                connection.rollback();
             }
+
             e.printStackTrace();
+
+        } finally {
+            closeConnections(connection, statement, preparedStatementInsert);
         }
+
         return false;
     }
 
-    private void searchMovie(String movieTitle) {
-        try {
-            Connection connection = DriverManager.getConnection(DB_URL_IMDB, USER, PASS);
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM movie WHERE title = " + "'" + movieTitle + "'");
 
+    /**
+     * Search the database for movies with the given movie title.
+     * When it finds a movie, it prints out its id, its title, and its production year.
+     * After that it prints the involved directors and actors and the movie's current rental status.
+     * Finally it will print our when the search is complete.
+     *
+     * @param movieTitle  The full movie title.
+     */
+    private void searchMovie(String movieTitle) {
+        Connection connection = null;
+        Connection connectionRental = null;
+        Statement statement = null;
+        Statement statementRental = null;
+
+        try {
+            connection = DriverManager.getConnection(DB_URL_IMDB, USER, PASS);
+            connection.setAutoCommit(false);
+            connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE); // To prevent 'non-repeatable reads' and 'phantom reads'.
+
+            statement = connection.createStatement();
+
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM movie WHERE title = " + "'" + movieTitle + "'");
             List<String> movies = new ArrayList<>();
 
             while (resultSet.next()) {
@@ -131,8 +178,12 @@ public class RentAMovie {
                     System.out.println(movieDirectors);
                     System.out.println(movieActors);
 
-                    Connection connectionRental = DriverManager.getConnection(DB_URL_CUSTOMERBASE, USER, PASS);
-                    Statement statementRental = connectionRental.createStatement();
+                    connectionRental = DriverManager.getConnection(DB_URL_CUSTOMERBASE, USER, PASS);
+                    connectionRental.setAutoCommit(false);
+                    connectionRental.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE); // To prevent 'non-repeatable reads' and 'phantom reads'.
+
+                    statementRental = connectionRental.createStatement();
+
                     ResultSet resultSetRental = statementRental.executeQuery("SELECT count(*) FROM rental WHERE rentstatus = " + "'" + 1 + "'" + "AND movieid = " + "'" + movieId + "'");
                     resultSetRental.first();
                     int isMovieRentedOut = resultSetRental.getInt(1);
@@ -147,21 +198,41 @@ public class RentAMovie {
 
         } catch (Exception e) {
             e.printStackTrace();
+
+        } finally {
+            closeConnections(connection, statement, null);
+            closeConnections(connectionRental, statementRental, null);
         }
 
         System.out.println(" ---------------------------------- ");
-        System.out.println("Search complete.");
+        System.out.println(" Search complete.");
         System.out.println(" ---------------------------------- ");
-
     }
 
-    private boolean rentMovie(int movieId) {
+
+    /**
+     * This method rents a movie to the signed in user. It checks in the database if the user has
+     * reached its rental limit and if the movie is available for rent. If all the criteria are met
+     * then the user rents the movie.
+     *
+     * @param movieId  The id of the movie.
+     * @return         True if the movie was rented. False if the user can not rent more movies
+     *                 or if the movie is already rented out.
+     * @throws SQLException
+     */
+    private boolean rentMovie(int movieId) throws SQLException {
         Connection connection = null;
+        Statement statement = null;
+        PreparedStatement preparedStatementInsert = null;
+
         try {
             connection = DriverManager.getConnection(DB_URL_CUSTOMERBASE, USER, PASS);
-            Statement statement = connection.createStatement();
+            connection.setAutoCommit(false);
+            connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE); // To prevent 'non-repeatable reads' and 'phantom reads'.
 
-            ResultSet resultSetCustomer = statement.executeQuery("SELECT count(*) FROM rental WHERE rentstatus = " + "'" + 1 + "'" + "AND customerid = " + "'" + userId + "'");
+            statement = connection.createStatement();
+
+            ResultSet resultSetCustomer = statement.executeQuery("SELECT count(*) FROM rental WHERE rentstatus = " + "'" + 1 + "'" + "AND customerid = " + "'" + mUserId + "'");
             resultSetCustomer.first();
             int moviesRentedByCustomer = resultSetCustomer.getInt(1);
 
@@ -179,84 +250,117 @@ public class RentAMovie {
                 return false;
             }
 
-            connection.setAutoCommit(false);
-            PreparedStatement preparedStatementInsert;
-
-            String insertSQL = "INSERT INTO rental (customerID, movieID, rentStatus, rentDate) VALUES (" + "'" + userId + "', '" + movieId + "', " + 1 + ", current_timestamp())";
+            String insertSQL = "INSERT INTO rental (customerID, movieID, rentStatus, rentDate) VALUES (" + "'" + mUserId + "', '" + movieId + "', " + 1 + ", current_timestamp())";
 
             preparedStatementInsert = connection.prepareStatement(insertSQL);
             preparedStatementInsert.executeUpdate();
             connection.commit();
 
-            System.out.println(userName + ", you have successfully rented the movie with the id: " + movieId);
-            System.out.println(userName + ", you can rent " + (2 - moviesRentedByCustomer) + " more movies.");
+            System.out.println(mUserName + ", you have successfully rented the movie with the id: " + movieId);
+            System.out.println(mUserName + ", you can rent " + (2 - moviesRentedByCustomer) + " more movies.");
             return true;
 
         } catch (Exception e) {
 
-            try {
-                if (connection != null) {
-                    connection.rollback();
-                }
-            } catch (Exception ee) {
-                ee.printStackTrace();
+            if (connection != null) {
+                connection.rollback();
             }
 
             e.printStackTrace();
+
+        } finally {
+            closeConnections(connection, statement, preparedStatementInsert);
         }
 
         return false;
     }
 
-    private boolean returnMovie(int movieId) {
+
+    /**
+     * Returns the desired movie. If the user did not rent the movie, it will print out and let the user know.
+     *
+     * @param movieId  The id of the movie to return.
+     * @return         True if the movie was returned successfully. False if the user has not rented the movie.
+     * @throws SQLException
+     */
+    private boolean returnMovie(int movieId) throws SQLException {
         Connection connection = null;
+        Statement statement = null;
+        PreparedStatement preparedStatementInsert = null;
 
         try {
             connection = DriverManager.getConnection(DB_URL_CUSTOMERBASE, USER, PASS);
-            Statement statement = connection.createStatement();
-            ResultSet resultSetMovie = statement.executeQuery("SELECT COUNT(*) FROM rental WHERE rentstatus = " + "'" + 1 + "'" + "AND movieid = " + "'" + movieId + "'" + "AND customerid = " + "'" + userId + "'");
+            connection.setAutoCommit(false);
+            connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE); // To prevent 'non-repeatable reads' and 'phantom reads'.
 
+            statement = connection.createStatement();
+
+            ResultSet resultSetMovie = statement.executeQuery("SELECT COUNT(*) FROM rental WHERE rentstatus = " + "'" + 1 + "'" + "AND movieid = " + "'" + movieId + "'" + "AND customerid = " + "'" + mUserId + "'");
             resultSetMovie.first();
-
             int isMovieRentedOut = resultSetMovie.getInt(1);
 
             if (isMovieRentedOut < 1) {
-                System.out.println("Hey " + userName + ". You did not rent this movie and can not return it.");
+                System.out.println("Hey " + mUserName + ". You did not rent this movie and can not return it.");
                 return false;
             }
 
-            connection.setAutoCommit(false);
-            PreparedStatement preparedStatementInsert;
-
-            String insertSQL = "UPDATE rental SET rentstatus = 0, returndate = current_timestamp() WHERE customerid = " + "'" + userId + "'" + " AND movieId = " + "'" + movieId + "'" + "AND rentstatus = 1";
+            String insertSQL = "UPDATE rental SET rentstatus = 0, returndate = current_timestamp() WHERE customerid = " + "'" + mUserId + "'" + " AND movieId = " + "'" + movieId + "'" + "AND rentstatus = 1";
 
             preparedStatementInsert = connection.prepareStatement(insertSQL);
             preparedStatementInsert.executeUpdate();
             connection.commit();
 
-            System.out.println(userName + ", you have successfully returned the movie with the id: " + movieId);
+            System.out.println(mUserName + ", you have successfully returned the movie with the id: " + movieId);
             return true;
 
         } catch (Exception e) {
-            try {
-                if (connection != null) {
-                    connection.rollback();
-                }
-            } catch (Exception ee) {
-                ee.printStackTrace();
+
+            if (connection != null) {
+                connection.rollback();
             }
 
             e.printStackTrace();
+
+        } finally {
+            closeConnections(connection, statement, preparedStatementInsert);
         }
 
         return false;
+    }
+
+
+    /**
+     * A simple method that closes all open statements and connections.
+     *
+     * @param connection                The connection we want to close.
+     * @param statement                 The statement we want to close.
+     * @param preparedStatementInsert   The prepared statement we want to close.
+     */
+    private void closeConnections(Connection connection, Statement statement, PreparedStatement preparedStatementInsert) {
+        try {
+
+            if (statement != null) {
+                statement.close();
+            }
+
+            if (preparedStatementInsert != null) {
+                preparedStatementInsert.close();
+            }
+
+            if (connection != null) {
+                connection.close();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
     public static void main(String[] args) {
         RentAMovie rentAMovie = new RentAMovie();
 
-        userId = -1;
+        mUserId = -1;
         boolean signedIn = false;
         boolean exitStore = false;
         boolean choosingSignIn = false;
@@ -345,15 +449,20 @@ public class RentAMovie {
                         System.out.println("Your Password is not an integer. Try again.");
                     }
 
-                    if (rentAMovie.createUser(name, userPass, fName, lName)) {
-                        if (rentAMovie.signInUser(name, userPass)) {
-                            signedIn = true;
+                    try {
+                        if (rentAMovie.createUser(name, userPass, fName, lName)) {
+                            if (rentAMovie.signInUser(name, userPass)) {
+                                signedIn = true;
+                            } else {
+                                System.out.println("Failed to create new account. Try again.");
+                            }
+
                         } else {
                             System.out.println("Failed to create new account. Try again.");
                         }
-
-                    } else {
-                        System.out.println("Failed to create new account. Try again.");
+                    } catch (SQLException e) {
+                        System.out.println("Something went wrong while connecting to the database. Try again.");
+                        e.printStackTrace();
                     }
                     break;
                 }
@@ -365,7 +474,6 @@ public class RentAMovie {
         }
 
 
-
         System.out.println("+----------------------------------+");
         System.out.println("|            HOW TO USE            |");
         System.out.println("+----------------------------------+");
@@ -374,7 +482,6 @@ public class RentAMovie {
         System.out.println("| To return type: return movieID   |");
         System.out.println("| To exit   type: exit             |");
         System.out.println("+----------------------------------+");
-
 
 
         while (!exitStore) {
@@ -396,6 +503,9 @@ public class RentAMovie {
                         rentAMovie.rentMovie(movieId);
                     } catch (NumberFormatException e) {
                         System.out.println("Movie ID is not recognized. Try again.");
+                    } catch (SQLException e) {
+                        System.out.println("Something went wrong while connecting to the database. Try again.");
+                        e.printStackTrace();
                     }
                     break;
 
@@ -405,12 +515,15 @@ public class RentAMovie {
                         rentAMovie.returnMovie(movieId);
                     } catch (NumberFormatException e) {
                         System.out.println("Movie ID is not recognized. Try again.");
+                    } catch (SQLException e) {
+                        System.out.println("Something went wrong while connecting to the database. Try again.");
+                        e.printStackTrace();
                     }
                     break;
 
                 case "exit":
                     exitStore = true;
-                    System.out.println("Goodbye " + userName + ". Thanks for visiting The Matrix Movie Store.");
+                    System.out.println("Goodbye " + mUserName + ". Thanks for visiting The Matrix Movie Store.");
                     break;
 
                 default:
